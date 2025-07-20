@@ -1,0 +1,188 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Role Selection - Frontier Tower WiFi Portal{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <h3><i class="fas fa-user-tag text-primary"></i> Select Your Role</h3>
+    <p class="text-muted">Please tell us how you're accessing the building today</p>
+    <small class="text-success">
+        <i class="fas fa-check-circle"></i> 
+        Authenticated as {{ user.first_name }} {{ user.last_name }} ({{ user.email }})
+    </small>
+</div>
+
+<form method="post" id="roleForm">
+    {% csrf_token %}
+    
+    <div class="role-selection mb-4">
+        <div class="role-card" data-role="member">
+            <div class="text-center">
+                <div class="role-icon">
+                    <i class="fas fa-id-badge"></i>
+                </div>
+                <h5>Member</h5>
+                <p class="text-muted mb-0">I work or have regular access to this building</p>
+            </div>
+        </div>
+        
+        <div class="role-card" data-role="guest">
+            <div class="text-center">
+                <div class="role-icon">
+                    <i class="fas fa-user-friends"></i>
+                </div>
+                <h5>Guest</h5>
+                <p class="text-muted mb-0">I'm visiting someone in the building</p>
+            </div>
+        </div>
+        
+        <div class="role-card" data-role="event">
+            <div class="text-center">
+                <div class="role-icon">
+                    <i class="fas fa-calendar-alt"></i>
+                </div>
+                <h5>Event Attendee</h5>
+                <p class="text-muted mb-0">I'm here for a specific event or meeting</p>
+            </div>
+        </div>
+    </div>
+    
+    <input type="hidden" name="role" id="selectedRole" value="{{ profile.role }}">
+    
+    <!-- Member-specific fields -->
+    <div id="memberFields" class="role-fields" style="display: none;">
+        <div class="mb-3">
+            <label for="floor" class="form-label">
+                <i class="fas fa-building"></i> Select Your Floor
+            </label>
+            <select class="form-control" name="floor" id="floor">
+                <option value="">Choose your floor...</option>
+                <option value="1" {% if profile.floor == '1' %}selected{% endif %}>Floor 1</option>
+                <option value="2" {% if profile.floor == '2' %}selected{% endif %}>Floor 2</option>
+                <option value="3" {% if profile.floor == '3' %}selected{% endif %}>Floor 3</option>
+                <option value="4" {% if profile.floor == '4' %}selected{% endif %}>Floor 4</option>
+                <option value="5" {% if profile.floor == '5' %}selected{% endif %}>Floor 5</option>
+            </select>
+        </div>
+    </div>
+    
+    <!-- Guest-specific fields -->
+    <div id="guestFields" class="role-fields" style="display: none;">
+        <div class="mb-3">
+            <label for="member_name" class="form-label">
+                <i class="fas fa-user"></i> Member You're Visiting
+            </label>
+            <input type="text" class="form-control" name="member_name" id="member_name" 
+                   placeholder="Enter the name of the member you're visiting"
+                   value="{{ profile.member_name }}">
+            <small class="form-text text-muted">Please provide the full name of the person you're visiting</small>
+        </div>
+    </div>
+    
+    <!-- Event-specific fields -->
+    <div id="eventFields" class="role-fields" style="display: none;">
+        <div class="mb-3">
+            <label for="event_name" class="form-label">
+                <i class="fas fa-calendar"></i> Event Name
+            </label>
+            <input type="text" class="form-control" name="event_name" id="event_name" 
+                   placeholder="Enter the event or meeting name"
+                   value="{{ profile.event_name }}">
+            <small class="form-text text-muted">Please provide the name of the event you're attending</small>
+        </div>
+    </div>
+    
+    <div class="d-grid gap-2 mt-4">
+        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn" disabled>
+            <i class="fas fa-arrow-right"></i> Continue to Authorization
+        </button>
+        <a href="{% url 'portal:logout' %}" class="btn btn-outline-secondary">
+            <i class="fas fa-sign-out-alt"></i> Sign Out
+        </a>
+    </div>
+</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const roleCards = document.querySelectorAll('.role-card');
+    const selectedRoleInput = document.getElementById('selectedRole');
+    const submitBtn = document.getElementById('submitBtn');
+    const roleFields = document.querySelectorAll('.role-fields');
+    
+    // Initialize with existing role if any
+    if (selectedRoleInput.value) {
+        const existingCard = document.querySelector(`[data-role="${selectedRoleInput.value}"]`);
+        if (existingCard) {
+            existingCard.classList.add('selected');
+            showRoleFields(selectedRoleInput.value);
+            submitBtn.disabled = false;
+        }
+    }
+    
+    roleCards.forEach(card => {
+        card.addEventListener('click', function() {
+            // Remove selection from all cards
+            roleCards.forEach(c => c.classList.remove('selected'));
+            
+            // Add selection to clicked card
+            this.classList.add('selected');
+            
+            // Update hidden input
+            const role = this.dataset.role;
+            selectedRoleInput.value = role;
+            
+            // Show appropriate fields
+            showRoleFields(role);
+            
+            // Enable submit button
+            submitBtn.disabled = false;
+        });
+    });
+    
+    function showRoleFields(role) {
+        // Hide all role fields
+        roleFields.forEach(field => {
+            field.style.display = 'none';
+        });
+        
+        // Show fields for selected role
+        const targetFields = document.getElementById(role + 'Fields');
+        if (targetFields) {
+            targetFields.style.display = 'block';
+        }
+    }
+    
+    // Form validation
+    document.getElementById('roleForm').addEventListener('submit', function(e) {
+        const role = selectedRoleInput.value;
+        let valid = true;
+        
+        if (role === 'member') {
+            const floor = document.getElementById('floor').value;
+            if (!floor) {
+                alert('Please select your floor.');
+                valid = false;
+            }
+        } else if (role === 'guest') {
+            const memberName = document.getElementById('member_name').value.trim();
+            if (!memberName) {
+                alert('Please enter the name of the member you\'re visiting.');
+                valid = false;
+            }
+        } else if (role === 'event') {
+            const eventName = document.getElementById('event_name').value.trim();
+            if (!eventName) {
+                alert('Please enter the event name.');
+                valid = false;
+            }
+        }
+        
+        if (!valid) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

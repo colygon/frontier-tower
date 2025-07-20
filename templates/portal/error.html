@@ -1,0 +1,35 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Access Denied - Frontier Tower WiFi Portal{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <div class="mb-3">
+        <i class="fas fa-exclamation-triangle text-danger" style="font-size: 4rem;"></i>
+    </div>
+    <h3 class="text-danger">Access Denied</h3>
+    <p class="text-muted">Unable to authorize your device for internet access</p>
+</div>
+
+<div class="alert alert-danger">
+    <i class="fas fa-times-circle"></i>
+    <strong>Authorization Failed:</strong> There was an issue connecting to the network controller. 
+    Please contact IT support for assistance.
+</div>
+
+<div class="d-grid gap-2">
+    <a href="{% url 'portal:index' %}" class="btn btn-primary">
+        <i class="fas fa-redo"></i> Try Again
+    </a>
+    <a href="{% url 'portal:logout' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+    </a>
+</div>
+
+<div class="text-center mt-4">
+    <small class="text-muted">
+        <i class="fas fa-phone"></i>
+        Need help? Contact IT Support at support@frontiertower.com
+    </small>
+</div>
+{% endblock %}

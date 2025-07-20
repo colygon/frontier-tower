@@ -1,0 +1,55 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Login - Frontier Tower WiFi Portal{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    {% if from_unifi %}
+        <h3><i class="fas fa-wifi text-primary"></i> WiFi Access Required</h3>
+        <p class="text-muted">Please authenticate to access the internet</p>
+        {% if mac_address %}
+            <small class="text-muted">Device: {{ mac_address }}</small>
+        {% endif %}
+    {% else %}
+        <h3>Welcome to Frontier Tower</h3>
+        <p class="text-muted">Please sign in to continue</p>
+    {% endif %}
+</div>
+
+<div class="d-grid gap-3">
+    <a href="{% url 'social:begin' 'google-oauth2' %}" class="oauth-btn google-btn">
+        <i class="fab fa-google"></i>
+        Continue with Google
+    </a>
+    
+    <a href="{% url 'social:begin' 'azuread-oauth2' %}" class="oauth-btn azure-btn">
+        <i class="fab fa-microsoft"></i>
+        Continue with Microsoft
+    </a>
+    
+    <a href="{% url 'social:begin' 'auth0' %}" class="oauth-btn auth0-btn">
+        <i class="fas fa-shield-alt"></i>
+        Continue with Auth0
+    </a>
+    
+    <a href="{% url 'social:begin' 'govbr' %}" class="oauth-btn govbr-btn">
+        <i class="fas fa-flag"></i>
+        Continue with Gov.br
+    </a>
+</div>
+
+<div class="text-center mt-4">
+    <small class="text-muted">
+        <i class="fas fa-lock"></i>
+        Your privacy is protected. We only access basic profile information.
+    </small>
+</div>
+
+{% if from_unifi %}
+<div class="text-center mt-3">
+    <small class="text-muted">
+        By continuing, you agree to our terms of service and acceptable use policy.
+    </small>
+</div>
+{% endif %}
+{% endblock %}

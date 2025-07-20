@@ -1,0 +1,81 @@
+{% extends 'portal/base.html' %}
+
+{% block title %}Access Granted - Frontier Tower WiFi Portal{% endblock %}
+
+{% block content %}
+<div class="text-center mb-4">
+    <div class="mb-3">
+        <i class="fas fa-check-circle text-success" style="font-size: 4rem;"></i>
+    </div>
+    <h3 class="text-success">Access Granted!</h3>
+    <p class="text-muted">You now have internet access</p>
+</div>
+
+<div class="card border-success mb-4">
+    <div class="card-body">
+        <h5 class="card-title">
+            <i class="fas fa-user"></i> Session Details
+        </h5>
+        <div class="row">
+            <div class="col-sm-4"><strong>Name:</strong></div>
+            <div class="col-sm-8">{{ user.first_name }} {{ user.last_name }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4"><strong>Email:</strong></div>
+            <div class="col-sm-8">{{ user.email }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4"><strong>Role:</strong></div>
+            <div class="col-sm-8">{{ profile.get_role_display }}</div>
+        </div>
+        {% if profile.role == 'member' and profile.floor %}
+        <div class="row">
+            <div class="col-sm-4"><strong>Floor:</strong></div>
+            <div class="col-sm-8">{{ profile.get_floor_display }}</div>
+        </div>
+        {% endif %}
+        {% if profile.role == 'guest' and profile.member_name %}
+        <div class="row">
+            <div class="col-sm-4"><strong>Visiting:</strong></div>
+            <div class="col-sm-8">{{ profile.member_name }}</div>
+        </div>
+        {% endif %}
+        {% if profile.role == 'event' and profile.event_name %}
+        <div class="row">
+            <div class="col-sm-4"><strong>Event:</strong></div>
+            <div class="col-sm-8">{{ profile.event_name }}</div>
+        </div>
+        {% endif %}
+        <div class="row">
+            <div class="col-sm-4"><strong>Authorized:</strong></div>
+            <div class="col-sm-8">{{ session.authorized_at|date:"M d, Y H:i" }}</div>
+        </div>
+        <div class="row">
+            <div class="col-sm-4"><strong>Expires:</strong></div>
+            <div class="col-sm-8">{{ session.expires_at|date:"M d, Y H:i" }}</div>
+        </div>
+    </div>
+</div>
+
+<div class="alert alert-info">
+    <i class="fas fa-info-circle"></i>
+    <strong>Important:</strong> Your internet access will expire automatically. 
+    You may need to re-authenticate if your session expires.
+</div>
+
+<div class="d-grid gap-2">
+    <button type="button" class="btn btn-success" onclick="window.close();">
+        <i class="fas fa-times"></i> Close Window
+    </button>
+    <a href="{% url 'portal:logout' %}" class="btn btn-outline-secondary">
+        <i class="fas fa-sign-out-alt"></i> Sign Out
+    </a>
+</div>
+
+<div class="text-center mt-4">
+    <small class="text-muted">
+        <i class="fas fa-shield-alt"></i>
+        Your session is secure and monitored for compliance.
+    </small>
+</div>
+{% endblock %}
